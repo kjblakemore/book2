@@ -5,7 +5,7 @@
         <!-- head:start -->
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Week 7 | book2</title>
+        <title>Yelp | book2</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="generator" content="GitBook 2.2.0">
@@ -45,10 +45,10 @@
         
     
     
-    <link rel="next" href="../../learning/week7/netapp.html" />
+    <link rel="next" href="../../hackathons/yelp/warmup.html" />
     
     
-    <link rel="prev" href="../../learning/index.html" />
+    <link rel="prev" href="../../hackathons/netapp/index.html" />
     
 
         <!-- head:end -->
@@ -56,7 +56,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="1.1" data-basepath="../.." data-revision="Sun Oct 11 2015 21:29:51 GMT-0600 (MDT)">
+    <div class="book" data-level="2.2" data-basepath="../.." data-revision="Sun Oct 11 2015 21:29:51 GMT-0600 (MDT)">
     
 
 <div class="book-summary">
@@ -102,7 +102,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="1.1" data-path="learning/week7/index.html">
+        <li class="chapter " data-level="1.1" data-path="learning/week7/index.html">
             
                 
                     <a href="../../learning/week7/index.html">
@@ -264,7 +264,7 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2" data-path="hackathons/yelp/index.html">
+        <li class="chapter active" data-level="2.2" data-path="hackathons/yelp/index.html">
             
                 
                     <a href="../../hackathons/yelp/index.html">
@@ -440,12 +440,51 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h1 id="week-7">Week 7</h1>
-<p>This week&apos;s learning challenge is as follows:</p>
+                        <h1 id="yelp">Yelp</h1>
+<p>The objective of this hackathon is to design and prototype an interactive
+visualization interface for exploring the Yelp dataset. Here we assume a user
+in the <em>data exploration</em> mode and may not have specific questions in mind.
+Instead of answering specific questions, your interface should support
+ <em>a class of questions</em>.</p>
+<p>Some examples of <em>question classes</em> for the Yelp dataset are:</p>
 <ul>
-<li>Team - NetApp Data, Report (Tableau)</li>
-<li>Individual - Interactive Visualization Basics (JQuery)    </li>
+<li>How many businesses are in (CITY)?</li>
+<li>How many businesses in the (X) categories?</li>
+<li>What is the distribution of businesses across categories that have
+an attribute (Y)?</li>
 </ul>
+<p>As you can see, each question class has a particular template with &quot;blanks&quot; to
+fill in. Your interface should provide appropriate input fields (e.g., text,
+dropdown) for users to fill in those blanks and get a different result.</p>
+<h2 id="business">business</h2>
+<p><pre><code>
+{
+    &apos;type&apos;: &apos;business&apos;,
+    &apos;business_id&apos;: (encrypted business id),
+    &apos;name&apos;: (business name),
+    &apos;neighborhoods&apos;: [(hood names)],
+    &apos;full_address&apos;: (localized address),
+    &apos;city&apos;: (city),
+    &apos;state&apos;: (state),
+    &apos;latitude&apos;: latitude,
+    &apos;longitude&apos;: longitude,
+    &apos;stars&apos;: (star rating, rounded to half-stars),
+    &apos;review_count&apos;: review count,
+    &apos;categories&apos;: [(localized category names)]
+    &apos;open&apos;: True / False (corresponds to closed, not business hours),
+    &apos;hours&apos;: {
+        (day_of_week): {
+            &apos;open&apos;: (HH:MM),
+            &apos;close&apos;: (HH:MM)
+        },
+        ...
+    },
+    &apos;attributes&apos;: {
+        (attribute_name): (attribute_value),
+        ...
+    },
+}
+</code></pre></p>
 
                     
                     </section>
@@ -456,10 +495,10 @@
         </div>
 
         
-        <a href="../../learning/index.html" class="navigation navigation-prev " aria-label="Previous page: Learning"><i class="fa fa-angle-left"></i></a>
+        <a href="../../hackathons/netapp/index.html" class="navigation navigation-prev " aria-label="Previous page: NetApp"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="../../learning/week7/netapp.html" class="navigation navigation-next " aria-label="Next page: NetApp"><i class="fa fa-angle-right"></i></a>
+        <a href="../../hackathons/yelp/warmup.html" class="navigation navigation-next " aria-label="Next page: Warmup"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
