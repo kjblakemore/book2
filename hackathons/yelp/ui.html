@@ -54,7 +54,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="2.2.3" data-basepath="../.." data-revision="Sun Oct 11 2015 21:29:51 GMT-0600 (MDT)">
+    <div class="book" data-level="2.2.3" data-basepath="../.." data-revision="Tue Oct 13 2015 15:58:58 GMT-0600 (MDT)">
     
 
 <div class="book-summary">
@@ -441,19 +441,20 @@
                         <h1 id="ui">UI</h1>
 <p>Pick one question class and build an exploratory visualization interface for it.
 The question class you pick must have at least three variables that can be changed.</p>
-<h2 id="-question-class">(Question class)</h2>
+<h2 id="how-many-businesses-are-open-on-x-day-at-y-hour">How many businesses are open on X day at Y hour?</h2>
+<p>Show the distribution over States.</p>
 <div style="border:1px grey solid; padding:5px;">
-    <div><h5>X</h5>
-        <input id="arg1" type="text" value="something">
+    <div><h5>X</h5> (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
+        <input id="day" type="text" value="Monday">
     </div>
-    <div><h5>Y</h5>
-        <input id="arg2" type="text" value="something">
+    <div><h5>Y</h5> (using 24 hour clock, e.g., 19:00)
+        <input id="hour" type="text" value="19:00">
     </div>
-    <div><h5>Z</h5>
-        <input id="arg2" type="text" value="something">
+    <div><h5>Z</h5> (e.g., ascending, descending)
+        <input id="direction" type="text" value="ascending">
     </div>    
     <div style="margin:20px;">
-        <button id="viz">Vizualize</button>
+        <button id="viz">Visualize</button>
     </div>
 </div>
 
@@ -478,14 +479,14 @@ $.get(&apos;http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_busi
          console.error(e)
      })
 
-function viz(arg1, arg2, arg3){    
+function viz(day, hour, direction){    
 
     // define a template string
     var tplString = &apos;&lt;g transform=&quot;translate(0 ${d.y})&quot;&gt; \
                     &lt;text y=&quot;20&quot;&gt;${d.label}&lt;/text&gt; \
                     &lt;rect x=&quot;30&quot;   \
                          width=&quot;${d.width}&quot; \
-                         height=&quot;20&quot;    \
+                         height=&quot;${d.height}&quot;  \
                          style=&quot;fill:${d.color};    \
                                 stroke-width:3; \
                                 stroke:rgb(0,0,0)&quot; /&gt;   \
@@ -499,30 +500,74 @@ function viz(arg1, arg2, arg3){
     }
 
     function computeWidth(d, i) {        
-        return i * 20 + 20
+        return d[1].length &lt; 700 ? d[1].length : 700
     }
 
-    function computeY(d, i) {
-        return i * 20
+    // Scale the height by the maximum number of businesses in the result
+    function computeHeight(d, i) {
+        return Math.round(d[1].length &lt;= 700 ? 20 : 20 * (d[1].length/700))
     }
+
+    // Adjust y coordinate by width of previous bars
+    function computeY(d, i) {
+    	return y = i==0? 0: _.reduce(_.map(first20.slice(0,i), function(d) {
+    									return computeHeight(d, 0)}), 
+    								function(total, d) {
+    									return total + d
+    								})
+    }
+    							
 
     function computeColor(d, i) {
         return &apos;red&apos;
     }
 
     function computeLabel(d, i) {
-        return &apos;f&apos; + i
+        return d[0]     // The label is the state abbreviation
     }
 
-    // TODO: modify the logic here based on your UI
-    // take the first 20 items to visualize    
-    items = _.take(items, 20)
+    // Convert hour string to int
+    function hourToInt(h) {
+        var x = h.split(&apos;:&apos;)
+        return x[0] * 3600 + x[1] * 60
+    }
 
-    var viz = _.map(items, function(d, i){                
+    // The input hour as an integer
+    var hourAsInt = hourToInt(hour)
+    console.log(&apos;hour&apos;, hour)
+
+    // First filter all entries for the specified day and time
+    itemsFiltered = _.filter(items, function(d) {
+        return d.hours &amp;&amp; d.hours[day] &amp;&amp;
+            (hourToInt(d.hours[day].open) &lt;= hourAsInt &amp;&amp;
+             hourAsInt &lt;= hourToInt(d.hours[day].close))
+        })
+
+    // Next group by state
+    var groups = _.groupBy(itemsFiltered, &apos;state&apos;)
+    console.log(&apos;groups&apos;, groups)
+
+    // Convert to array of [state, record]
+    var pairs = _.pairs(groups)
+    console.log(&apos;pairs&apos;, pairs)
+
+    // Sort in specified direction
+    var sortorder = direction == &apos;ascending&apos;? 1 : -1
+    pairsSorted = _.sortBy(pairs, function(d, i) {
+        return d[1].length * sortorder
+        })
+
+    console.log(&apos;pairs sorted&apos;, pairsSorted)
+
+    // Just take the first 20 states
+    first20 = _.take(pairsSorted, 20)
+
+    var viz = _.map(first20, function(d, i){                
                 return {
                     x: computeX(d, i),
                     y: computeY(d, i),
                     width: computeWidth(d, i),
+                    height: computeHeight(d, i),
                     color: computeColor(d, i),
                     label: computeLabel(d, i)
                 }
@@ -539,19 +584,18 @@ function viz(arg1, arg2, arg3){
 }
 
 $(&apos;button#viz&apos;).click(function(){    
-    var arg1 = &apos;TODO&apos;
-    var arg2 = &apos;TODO&apos;
-    var arg3 = &apos;TODO&apos;    
-    viz(arg1, arg2, arg3)
-})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n\n        console.log('number of items loaded:', items.length)\n\n        console.log('first item', items[0])\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(arg1, arg2, arg3){    \n\n    // define a template string\n    var tplString = '<g transform=\"translate(0 ${d.y})\"> \\\n                    <text y=\"20\">${d.label}</text> \\\n                    <rect x=\"30\"   \\\n                         width=\"${d.width}\" \\\n                         height=\"20\"    \\\n                         style=\"fill:${d.color};    \\\n                                stroke-width:3; \\\n                                stroke:rgb(0,0,0)\" />   \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    function computeX(d, i) {\n        return 0\n    }\n\n    function computeWidth(d, i) {        \n        return i * 20 + 20\n    }\n\n    function computeY(d, i) {\n        return i * 20\n    }\n\n    function computeColor(d, i) {\n        return 'red'\n    }\n\n    function computeLabel(d, i) {\n        return 'f' + i\n    }\n\n    // TODO: modify the logic here based on your UI\n    // take the first 20 items to visualize    \n    items = _.take(items, 20)\n\n    var viz = _.map(items, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i),\n                    width: computeWidth(d, i),\n                    color: computeColor(d, i),\n                    label: computeLabel(d, i)\n                }\n             })\n    console.log('viz', viz)\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n    console.log('result', result)\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var arg1 = 'TODO'\n    var arg2 = 'TODO'\n    var arg3 = 'TODO'    \n    viz(arg1, arg2, arg3)\n})"</script></p>
+    var day = $(&apos;input#day&apos;).val()
+    var hour = $(&apos;input#hour&apos;).val()
+    var direction = $(&apos;input#direction&apos;).val()  
+    viz(day, hour, direction)
+})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n\n        console.log('number of items loaded:', items.length)\n\n        console.log('first item', items[0])\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(day, hour, direction){    \n\n    // define a template string\n    var tplString = '<g transform=\"translate(0 ${d.y})\"> \\\n                    <text y=\"20\">${d.label}</text> \\\n                    <rect x=\"30\"   \\\n                         width=\"${d.width}\" \\\n                         height=\"${d.height}\"  \\\n                         style=\"fill:${d.color};    \\\n                                stroke-width:3; \\\n                                stroke:rgb(0,0,0)\" />   \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    function computeX(d, i) {\n        return 0\n    }\n\n    function computeWidth(d, i) {        \n        return d[1].length < 700 ? d[1].length : 700\n    }\n\n    // Scale the height by the maximum number of businesses in the result\n    function computeHeight(d, i) {\n        return Math.round(d[1].length <= 700 ? 20 : 20 * (d[1].length/700))\n    }\n\n    // Adjust y coordinate by width of previous bars\n    function computeY(d, i) {\n    \treturn y = i==0? 0: _.reduce(_.map(first20.slice(0,i), function(d) {\n    \t\t\t\t\t\t\t\t\treturn computeHeight(d, 0)}), \n    \t\t\t\t\t\t\t\tfunction(total, d) {\n    \t\t\t\t\t\t\t\t\treturn total + d\n    \t\t\t\t\t\t\t\t})\n    }\n    \t\t\t\t\t\t\t\n\n    function computeColor(d, i) {\n        return 'red'\n    }\n\n    function computeLabel(d, i) {\n        return d[0]     // The label is the state abbreviation\n    }\n\n    // Convert hour string to int\n    function hourToInt(h) {\n        var x = h.split(':')\n        return x[0] * 3600 + x[1] * 60\n    }\n\n    // The input hour as an integer\n    var hourAsInt = hourToInt(hour)\n    console.log('hour', hour)\n\n    // First filter all entries for the specified day and time\n    itemsFiltered = _.filter(items, function(d) {\n        return d.hours && d.hours[day] &&\n            (hourToInt(d.hours[day].open) <= hourAsInt &&\n             hourAsInt <= hourToInt(d.hours[day].close))\n        })\n\n    // Next group by state\n    var groups = _.groupBy(itemsFiltered, 'state')\n    console.log('groups', groups)\n\n    // Convert to array of [state, record]\n    var pairs = _.pairs(groups)\n    console.log('pairs', pairs)\n\n    // Sort in specified direction\n    var sortorder = direction == 'ascending'? 1 : -1\n    pairsSorted = _.sortBy(pairs, function(d, i) {\n        return d[1].length * sortorder\n        })\n\n    console.log('pairs sorted', pairsSorted)\n\n    // Just take the first 20 states\n    first20 = _.take(pairsSorted, 20)\n\n    var viz = _.map(first20, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i),\n                    width: computeWidth(d, i),\n                    height: computeHeight(d, i),\n                    color: computeColor(d, i),\n                    label: computeLabel(d, i)\n                }\n             })\n    console.log('viz', viz)\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n    console.log('result', result)\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var day = $('input#day').val()\n    var hour = $('input#hour').val()\n    var direction = $('input#direction').val()  \n    viz(day, hour, direction)\n})"</script></p>
 <h1 id="authors">Authors</h1>
 <p>This UI is developed by</p>
 <ul>
-<li><a href="link%20to%20github%20account">Full name</a></li>
-<li><a href="link%20to%20github%20account">Full name</a></li>
-<li><a href="link%20to%20github%20account">Full name</a></li>
-<li><a href="link%20to%20github%20account">Full name</a></li>
-<li><a href="link%20to%20github%20account">Full name</a></li>
+<li><a href="https://github.com/kjblakemore" target="_blank">Karen Blakemore</a></li>
+<li><a href="https://github.com/mattschroeder97" target="_blank">Matt Schroeder</a></li>
+<li><a href="https://github.com/Malaokia" target="_blank">Mingqi Lew</a></li>
+<li><a href="https://github.com/co-bri" target="_blank">Brian McKean</a></li>
 </ul>
 
                     
@@ -586,10 +630,6 @@ $(&apos;button#viz&apos;).click(function(){
 
     
     <script src="../../gitbook/plugins/gitbook-plugin-toggle-chapters/toggle.js"></script>
-    
-
-    
-    <script src="../../gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
     
 
 <script>
