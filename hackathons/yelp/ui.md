@@ -74,12 +74,12 @@ function viz(day, hour, direction){
 
     // Adjust y coordinate by width of previous bars
     function computeY(d, i) {
-    	return y = i==0? 0: _.reduce(_.map(first20.slice(0,i), function(d) {
-    									return computeHeight(d, 0)}), 
-    								function(total, d) {
-    									return total + d
-    								})
-    }
+    	return y = i==0? 0: _.sum(_.map(first20.slice(0,i), 
+    								function(d) {
+    									return computeHeight(d, 0)
+                                    	})
+                                	)
+    							}
     							
 
     function computeColor(d, i) {
