@@ -68,7 +68,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="1.2.3" data-basepath="../.." data-revision="Fri Oct 16 2015 20:02:00 GMT-0600 (MDT)">
+    <div class="book" data-level="1.2.3" data-basepath="../.." data-revision="Sun Oct 18 2015 23:39:55 GMT-0600 (MDT)">
     
 
 <div class="book-summary">
@@ -460,9 +460,125 @@
                     <section class="normal" id="section-">
                     
                         <h1 id="individual-2-of-3">Individual 2 of 3</h1>
-<h2 id="-question-class">(Question class)</h2>
-<p>(fill in the rest to provide an interactive visualization interface for
-    this question class)</p>
+<h2 id="is-there-a-relationship-between-number-of-attributes-and-star-count">Is there a relationship between Number of Attributes and Star Count?</h2>
+<div style="border:1px grey solid; padding:5px;">
+    <div><h5>X</h5> (SC, IL, WI, NC, PA, AZ or ALL to select all States)
+        <input id="state" type="text" value="PA">
+    </div>
+    <div><h5>Y</h5> (City Name or ALL to select all Cities)
+        <input id="city" type="text" value="ALL">
+    </div>
+    <div><h5>Z</h5> (Category or ALL to select all Categories)
+        <input id="category" type="text" value="ALL">
+    </div> 
+    <div><h5>W</h5> (Maximum Number of Attributes or NONE to accept any Number of Attributes)
+        <input id="attributes" type="text" value="NONE">
+    </div>       
+    <div style="margin:20px;">
+        <button id="viz">Visualize</button>
+    </div>
+</div>
+
+<div class="myviz" style="width:100%; height:600px; border: 1px black solid; padding: 5px;">
+Data is not loaded yet
+</div>
+
+<p><pre><code>items = &apos;not loaded yet&apos;
+
+$.get(&apos;http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt&apos;)
+    .success(function(data){        
+        var lines = data.trim().split(&apos;\n&apos;)
+
+        // convert text lines to json arrays and save them in `items`
+        items = _.map(lines, JSON.parse)
+
+        console.log(&apos;number of items loaded:&apos;, items.length)
+
+        console.log(&apos;first item&apos;, items[0])
+     })
+     .error(function(e){
+         console.error(e)
+     })
+
+function viz(state, city, category, attributes){ 
+
+    // define a template string
+    var tplString = &apos;&lt;g&gt; \
+    				&lt;circle cx=&quot;${d.x}&quot; \
+    				cy=&quot;${d.y}&quot; \
+    				r=&quot;4&quot; \
+    				stroke=&quot;black&quot; \
+    				fill=&quot;red&quot; /&gt; \
+                    &lt;/g&gt;&apos;
+
+    // compile the string to get a template function
+    var template = _.template(tplString)
+
+    // Filter all entries for the specified state, city and category
+    var itemsFiltered = _.filter(items, function(d) {
+    	return (state == &apos;ALL&apos; || d.state == state) &amp;&amp; (city == &apos;ALL&apos; || d.city == city ) &amp;&amp; (category == &apos;ALL&apos; || _.includes(d.categories, category))
+    })
+
+    console.log(&apos;itemsFiltered&apos;, itemsFiltered)
+
+    // Next, extract star rating and number of attributes
+    var attributeRatingPairs = _.map(itemsFiltered, function(d) {
+    	return [_.keys(d.attributes).length, d.stars]
+    	})
+
+    console.log(&apos;attributeRatingPairs&apos;, attributeRatingPairs)
+
+    var minStar = _.min(_.unzip(attributeRatingPairs)[1])
+    var maxStar = _.max(_.unzip(attributeRatingPairs)[1])
+
+    console.log(&apos;min stars&apos;, minStar)
+    console.log(&apos;max stars&apos;, maxStar)
+
+    var maxAttribute = attributes == &apos;NONE&apos; ? _.max(_.unzip(attributeRatingPairs)[0]): attributes
+
+    console.log(&apos;max attribute count&apos;, maxAttribute)
+
+    // X coordinate is the number of attributes, shifted 20 points to right
+    function computeX(d, i) {
+        return d[0] * 600 / maxAttribute + 20
+    }
+
+    // Y coordinate is the scaled star count, translated to an origin at lower left corner, with jitter
+    function computeY(d, i) {
+    	return 600 - 100 * (d[1] + Math.random() - .5)
+    }
+
+    var viz = _.map(attributeRatingPairs, function(d, i){                
+                return {
+                    x: computeX(d, i),
+                    y: computeY(d, i)
+                }
+             })
+
+    console.log(&apos;viz&apos;, viz)
+
+    var result = _.map(viz, function(d){
+             // invoke the compiled template function on each viz data
+             return template({d: d})
+         })
+
+    console.log(&apos;result&apos;, result)
+
+    $(&apos;.myviz&apos;).html(&apos;&lt;svg width=&quot;100%&quot; height=&quot;100%&quot;&gt;&apos; + result + &apos;&lt;/svg&gt;&apos;)
+}
+
+$(&apos;button#viz&apos;).click(function(){    
+    var state = $(&apos;input#state&apos;).val()
+    var city = $(&apos;input#city&apos;).val()
+    var category = $(&apos;input#category&apos;).val() 
+    var attributes = $(&apos;input#attributes&apos;).val()
+    viz(state, city, category, attributes)
+})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n\n        console.log('number of items loaded:', items.length)\n\n        console.log('first item', items[0])\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(state, city, category, attributes){ \n\n    // define a template string\n    var tplString = '<g> \\\n    \t\t\t\t<circle cx=\"${d.x}\" \\\n    \t\t\t\tcy=\"${d.y}\" \\\n    \t\t\t\tr=\"4\" \\\n    \t\t\t\tstroke=\"black\" \\\n    \t\t\t\tfill=\"red\" /> \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    // Filter all entries for the specified state, city and category\n    var itemsFiltered = _.filter(items, function(d) {\n    \treturn (state == 'ALL' || d.state == state) && (city == 'ALL' || d.city == city ) && (category == 'ALL' || _.includes(d.categories, category))\n    })\n\n    console.log('itemsFiltered', itemsFiltered)\n\n    // Next, extract star rating and number of attributes\n    var attributeRatingPairs = _.map(itemsFiltered, function(d) {\n    \treturn [_.keys(d.attributes).length, d.stars]\n    \t})\n\n    console.log('attributeRatingPairs', attributeRatingPairs)\n\n    var minStar = _.min(_.unzip(attributeRatingPairs)[1])\n    var maxStar = _.max(_.unzip(attributeRatingPairs)[1])\n\n    console.log('min stars', minStar)\n    console.log('max stars', maxStar)\n\n    var maxAttribute = attributes == 'NONE' ? _.max(_.unzip(attributeRatingPairs)[0]): attributes\n\n    console.log('max attribute count', maxAttribute)\n\n    // X coordinate is the number of attributes, shifted 20 points to right\n    function computeX(d, i) {\n        return d[0] * 600 / maxAttribute + 20\n    }\n\n    // Y coordinate is the scaled star count, translated to an origin at lower left corner, with jitter\n    function computeY(d, i) {\n    \treturn 600 - 100 * (d[1] + Math.random() - .5)\n    }\n\n    var viz = _.map(attributeRatingPairs, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i)\n                }\n             })\n\n    console.log('viz', viz)\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n\n    console.log('result', result)\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var state = $('input#state').val()\n    var city = $('input#city').val()\n    var category = $('input#category').val() \n    var attributes = $('input#attributes').val()\n    viz(state, city, category, attributes)\n})"</script></p>
+<h1 id="author">Author</h1>
+<p>This UI is developed by</p>
+<ul>
+<li><a href="https://github.com/kjblakemore" target="_blank">Karen Blakemore</a></li>
+</ul>
 
                     
                     </section>
@@ -520,9 +636,13 @@
     <script src="../../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="../../gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"bigdata":{},"toggle-chapters":{},"highlight":{},"search":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"bigdata":{},"toggle-chapters":{},"highlight":{},"search":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>
