@@ -33,6 +33,12 @@ https://public.tableau.com/profile/publish/Bigdata_Book/Sheet1#!/publish-confirm
 
 The distribution of standard deviations is shown in the top chart; the means in the bottom chart.
 
+# Which release had the most instances of delta times around 24 hours?
+
+![screenshot](matt.png)
+
+The chart above shows the distribution of delta times in 10,000 second increments over releases.
+
 # Further Analysis
 
 Our team determines the following questions are too complex for Tableau and
