@@ -4,22 +4,23 @@ Pick one question class and build an exploratory visualization interface for it.
 The question class you pick must have at least three variables that can be changed.
 
 ## How many businesses are open on X day at Y hour?
-Show the distribution over States.
 
 <div style="border:1px grey solid; padding:5px;">
-    <div><h5>X</h5> (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
+    <div><h5>Enter Day of the Week</h5> (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
         <input id="day" type="text" value="Monday"/>
     </div>
-    <div><h5>Y</h5> (using 24 hour clock, e.g., 19:00)
-        <input id="hour" type="text" value="19:00"/>
+    <div><h5>Enter Hour, using 24 hour clock</h5> (hh:mm)
+        <input id="hour" type="text" value="14:00"/>
     </div>
-    <div><h5>Z</h5> (e.g., ascending, descending)
+    <div><h5>Enter Direction of Sort</h5> (ascending or descending)
         <input id="direction" type="text" value="ascending"/>
     </div>    
     <div style="margin:20px;">
         <button id="viz">Visualize</button>
     </div>
 </div>
+
+The following chart shows the number of open businesses by state.
 
 <div class="myviz" style="width:100%; height:500px; border: 1px black solid; padding: 5px;">
 Data is not loaded yet
