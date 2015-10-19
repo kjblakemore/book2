@@ -68,7 +68,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="1.1.1" data-basepath="../.." data-revision="Sun Oct 18 2015 23:39:55 GMT-0600 (MDT)">
+    <div class="book" data-level="1.1.1" data-basepath="../.." data-revision="Mon Oct 19 2015 11:51:02 GMT-0600 (MDT)">
     
 
 <div class="book-summary">
@@ -468,8 +468,8 @@ He shared a data problem for our class to help solve.</p>
 <p>This report is prepared by</p>
 <ul>
 <li><a href="https://github.com/kjblakemore" target="_blank">Karen Blakemore</a></li>
+<li><a href="https://github.com/Malaokia" target="_blank">Mingqi Liew</a></li>
 <li><a href="https://github.com/mattschroeder97" target="_blank">Matt Schroeder</a></li>
-<li><a href="https://github.com/Malaokia" target="_blank">Mingqi Lew</a></li>
 </ul>
 <h1 id="what-percentage-of-the-data-points-have-time-deltas-of-one-day">What percentage of the data points have time deltas of one day.</h1>
 <p><img src="deltas.png" alt="screenshot"></p>
@@ -477,22 +477,18 @@ He shared a data problem for our class to help solve.</p>
 <h1 id="is-there-a-correlation-between-firmware-version-and-time-deltas">Is there a correlation between Firmware Version and Time Deltas?</h1>
 <p><img src="fwvers.png" alt="screenshot"></p>
 <p>The chart above shows the distribution of delta times in 10,000 second increments over the firmware versions.  Firmware version 7.86.38.30 shows a distinct pattern of delta times that are less than 1 day (80K bin).</p>
-<h1 id="-question">(Question)</h1>
-<p>(answer)</p>
-<h1 id="-question">(Question)</h1>
-<p>(answer)</p>
-<h1 id="-question">(Question)</h1>
-<p>(answer)</p>
+<h1 id="what-is-the-mean-and-standard-deviation-of-the-delta-times-for-each-system-serial-number">What is the mean and standard deviation of the delta times for each system serial number?</h1>
+<p><a href="https://public.tableau.com/profile/publish/Bigdata_Book/Sheet1#!/publish-confirm" target="_blank">https://public.tableau.com/profile/publish/Bigdata_Book/Sheet1#!/publish-confirm</a></p>
+<p><img src="mingqi.png" alt="screenshot"></p>
+<p>The distribution of standard deviations is shown in the top chart; the means in the bottom chart.</p>
 <h1 id="further-analysis">Further Analysis</h1>
 <p>Our team determines the following questions are too complex for Tableau and
 require custom scripts to be written.</p>
 <ul>
 <li><p>The development of <a href="https://districtdatalabs.silvrback.com/time-maps-visualizing-discrete-events-across-many-timescales" target="_blank">Time Maps</a> might be to complex for Tableau.  Time Maps could be used to graph observations based on their time difference from the previous observation (x-axis) and the next observation (y-axis).  We already have the x-axis values.  These are the Delta Times.  We would need to calculate the y-axis values which are the deltas between the current Observation Time and the next for a particular system.</p>
 </li>
-<li><p>(Question)</p>
+<li><p>Calculate the most frequently occurring invalid delta time that is in common across both controller types, A and B.</p>
 </li>
-<li>(Question)</li>
-<li>(Question)</li>
 </ul>
 
                     
@@ -551,13 +547,9 @@ require custom scripts to be written.</p>
     <script src="../../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
-    
-    <script src="../../gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
-    
-
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"bigdata":{},"toggle-chapters":{},"highlight":{},"search":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
+    var config = {"bigdata":{},"toggle-chapters":{},"highlight":{},"search":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
     gitbook.start(config);
 });
 </script>
