@@ -10,8 +10,8 @@ Tableau
 
 This report is prepared by
 * [Karen Blakemore](https://github.com/kjblakemore)
+* [Mingqi Liew](https://github.com/Malaokia)
 * [Matt Schroeder](https://github.com/mattschroeder97)
-* [Mingqi Lew](https://github.com/Malaokia)
 
 # What percentage of the data points have time deltas of one day.
 
@@ -25,17 +25,13 @@ In the chart, above, the time deltas have been grouped into bins of 10,000 secon
 
 The chart above shows the distribution of delta times in 10,000 second increments over the firmware versions.  Firmware version 7.86.38.30 shows a distinct pattern of delta times that are less than 1 day (80K bin).
 
-# (Question)
+# What is the mean and standard deviation of the delta times for each system serial number?
 
-(answer)
+https://public.tableau.com/profile/publish/Bigdata_Book/Sheet1#!/publish-confirm
 
-# (Question)
+![screenshot](mingqi.png)
 
-(answer)
-
-# (Question)
-
-(answer)
+The distribution of standard deviations is shown in the top chart; the means in the bottom chart.
 
 # Further Analysis
 
@@ -44,6 +40,4 @@ require custom scripts to be written.
 
 * The development of [Time Maps](https://districtdatalabs.silvrback.com/time-maps-visualizing-discrete-events-across-many-timescales) might be to complex for Tableau.  Time Maps could be used to graph observations based on their time difference from the previous observation (x-axis) and the next observation (y-axis).  We already have the x-axis values.  These are the Delta Times.  We would need to calculate the y-axis values which are the deltas between the current Observation Time and the next for a particular system.
 
-* (Question)
-* (Question)
-* (Question)
+* Calculate the most frequently occurring invalid delta time that is in common across both controller types, A and B.
