@@ -68,7 +68,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="1.2.4" data-basepath="../.." data-revision="Mon Oct 19 2015 11:51:02 GMT-0600 (MDT)">
+    <div class="book" data-level="1.2.4" data-basepath="../.." data-revision="Mon Oct 19 2015 14:37:31 GMT-0600 (MDT)">
     
 
 <div class="book-summary">
@@ -462,14 +462,17 @@
                         <h1 id="individual-3-of-3">Individual 3 of 3</h1>
 <h2 id="is-there-a-relationship-beween-category-type-and-star-rating">Is there a relationship beween category type and star rating?</h2>
 <div style="border:1px grey solid; padding:5px;">
-    <div><h5>X</h5> (SC, IL, WI, NC, PA, AZ or ALL to select all States)
+    <div><h5>Enter State Abbreviation</h5> (SC, IL, WI, NC, PA, AZ ar ALL)
         <input id="state" type="text" value="ALL">
     </div>
-    <div><h5>Y</h5> (City Name or ALL to select all Cities)
+    <div><h5>Enter City Name</h5> (City Name or ALL)
         <input id="city" type="text" value="ALL">
     </div>
-    <div><h5>Z</h5> (Sort by Alphabet or Star)
+    <div><h5>Enter Sort Method</h5> (Alphabet or Star)
         <input id="sort" type="text" value="Star">
+    </div>  
+     <div><h5>Enter Minimum Review Count</h5> (Number or NONE)
+        <input id="reviews" type="text" value="10">
     </div>  
     <div style="margin:20px;">
         <button id="viz">Visualize</button>
@@ -488,17 +491,12 @@ $.get(&apos;http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_busi
 
         // convert text lines to json arrays and save them in `items`
         items = _.map(lines, JSON.parse)
-
-        console.log(&apos;number of items loaded:&apos;, items.length)
-
-        console.log(&apos;first item&apos;, items[0])
      })
      .error(function(e){
          console.error(e)
      })
 
-function viz(state, city, sort){ 
-
+function viz(state, city, sort, reviews){ 
     // define a template string
     var tplString = &apos;&lt;g transform=&quot;translate(0 ${d.y})&quot;&gt; \
                     &lt;text y=&quot;20&quot;&gt;${d.label}&lt;/text&gt; \
@@ -522,7 +520,6 @@ function viz(state, city, sort){
     	return d[1].avgStar * 95
     }
 
-
     function computeHeight(d, i) {
     	return 20
     }
@@ -539,46 +536,51 @@ function viz(state, city, sort){
     	return d[0] + &apos; (&apos; + d[1].numRecords.toString() + &apos;)&apos;
     }
 
-	// Filter all entries for the specified state and city
-    var itemsFiltered = _.filter(items, function(d) {
-    	return (state == &apos;ALL&apos; || d.state == state) &amp;&amp; (city == &apos;ALL&apos; || d.city == city )
-    })
-
-    // Group items by Category, reducing value to the average star count and number of records
-    var itemsGroupedByCategory = 
+    // Map the items to categories and star counts for the specified state &amp; city.
+    var itemsFiltered = _.chain(items)
+        .filter(function(d) {
+    	   return (state == &apos;ALL&apos; || d.state == state) 
+            &amp;&amp; (city == &apos;ALL&apos; || d.city == city )
+        })
+        .map(function(d) {
+            return [d.categories, d.stars]
+        })
+        .value()
+     
+    // Map [categories, stars] to [category, average star rating, number of records]
+    var categories = 
     	_.mapValues(
     		_.groupBy(
-    			_.flatten(
+                _.flatten(
     				_.map(itemsFiltered, function(d) {
-    					return _.map(d.categories, function(n) {
-    						return [n, d]
+    					return _.map(d[0], function(n) {
+    						return [n, d[1]]
     					})
     				})
-    			), function(d) {
+    			), function(d) { // group [category, star] pairs by category
     				return d[0]
     				}
     		), function(d) {
     			var records = _.unzip(d)[1]
     			var numRecords = records.length
-    			var avgStar = _.sum(records, function(r) {
-    				return r.stars
-    				}) / records.length
+    			var avgStar = _.sum(records) / numRecords
     			return {&apos;avgStar&apos;: avgStar, &apos;numRecords&apos;: numRecords}
     			}
     		)
 
-    console.log(&apos;categories&apos;, itemsGroupedByCategory)
-
-    var numberOfCategories = _.size(itemsGroupedByCategory)
-    console.log(&apos;number of categories&apos;, numberOfCategories)
-
+    // Only for debug
+    var count = _.size(categories)
 
     // Convert to an array of pairs [category, item]
-    var pairs = _.pairs(itemsGroupedByCategory)
-    console.log(&apos;pairs&apos;, pairs)
+    var pairs = _.pairs(categories)
+
+    // Filter out records with review counts less than specified
+    pairsFiltered = _.filter(pairs, function(d) {
+        return reviews == &apos;NONE&apos; ? true : d[1].numRecords &gt;= reviews
+        })
 
     // Sort alphabetically or by star count
-    pairsSorted = _.sortBy(pairs, function(d) {
+    pairsSorted = _.sortBy(pairsFiltered, function(d) {
     	return sort == &apos;Alphabet&apos; ? d[0] : d[1].avgStar
         })
 
@@ -593,14 +595,10 @@ function viz(state, city, sort){
                 }
              })
 
-    console.log(&apos;viz&apos;, viz)
-
     var result = _.map(viz, function(d){
              // invoke the compiled template function on each viz data
              return template({d: d})
          })
-
-    console.log(&apos;result&apos;, result)
 
     $(&apos;.myviz&apos;).html(&apos;&lt;svg width=&quot;100%&quot; height=&quot;100%&quot;&gt;&apos; + result + &apos;&lt;/svg&gt;&apos;)
 }
@@ -609,8 +607,9 @@ $(&apos;button#viz&apos;).click(function(){
     var state = $(&apos;input#state&apos;).val()
     var city = $(&apos;input#city&apos;).val()
     var sort = $(&apos;input#sort&apos;).val() 
-    viz(state, city, sort)
-})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n\n        console.log('number of items loaded:', items.length)\n\n        console.log('first item', items[0])\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(state, city, sort){ \n\n    // define a template string\n    var tplString = '<g transform=\"translate(0 ${d.y})\"> \\\n                    <text y=\"20\">${d.label}</text> \\\n                    <rect x=\"280\"   \\\n                         width=\"${d.width}\" \\\n                         height=\"${d.height}\"  \\\n                         style=\"fill:${d.color};    \\\n                                stroke-width:3; \\\n                                stroke:rgb(0,0,0)\" />   \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    function computeX(d, i) {\n        return 0\n    }\n\n    // Width of bar is the average number of stars for the category\n    function computeWidth(d, i) {\n    \treturn d[1].avgStar * 95\n    }\n\n\n    function computeHeight(d, i) {\n    \treturn 20\n    }\n\n    function computeY(d, i) {\n    \treturn 20 * i\n    }\n\n    function computeColor(d, i) {\n        return 'blue'\n    }\n\n    function computeLabel(d, i) {\n    \treturn d[0] + ' (' + d[1].numRecords.toString() + ')'\n    }\n\n\t// Filter all entries for the specified state and city\n    var itemsFiltered = _.filter(items, function(d) {\n    \treturn (state == 'ALL' || d.state == state) && (city == 'ALL' || d.city == city )\n    })\n\n    // Group items by Category, reducing value to the average star count and number of records\n    var itemsGroupedByCategory = \n    \t_.mapValues(\n    \t\t_.groupBy(\n    \t\t\t_.flatten(\n    \t\t\t\t_.map(itemsFiltered, function(d) {\n    \t\t\t\t\treturn _.map(d.categories, function(n) {\n    \t\t\t\t\t\treturn [n, d]\n    \t\t\t\t\t})\n    \t\t\t\t})\n    \t\t\t), function(d) {\n    \t\t\t\treturn d[0]\n    \t\t\t\t}\n    \t\t), function(d) {\n    \t\t\tvar records = _.unzip(d)[1]\n    \t\t\tvar numRecords = records.length\n    \t\t\tvar avgStar = _.sum(records, function(r) {\n    \t\t\t\treturn r.stars\n    \t\t\t\t}) / records.length\n    \t\t\treturn {'avgStar': avgStar, 'numRecords': numRecords}\n    \t\t\t}\n    \t\t)\n\n    console.log('categories', itemsGroupedByCategory)\n\n    var numberOfCategories = _.size(itemsGroupedByCategory)\n    console.log('number of categories', numberOfCategories)\n\n\n    // Convert to an array of pairs [category, item]\n    var pairs = _.pairs(itemsGroupedByCategory)\n    console.log('pairs', pairs)\n\n    // Sort alphabetically or by star count\n    pairsSorted = _.sortBy(pairs, function(d) {\n    \treturn sort == 'Alphabet' ? d[0] : d[1].avgStar\n        })\n\n    var viz = _.map(pairsSorted, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i),\n                    width: computeWidth(d, i),\n                    height: computeHeight(d, i),\n                    color: computeColor(d, i),\n                    label: computeLabel(d, i)\n                }\n             })\n\n    console.log('viz', viz)\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n\n    console.log('result', result)\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var state = $('input#state').val()\n    var city = $('input#city').val()\n    var sort = $('input#sort').val() \n    viz(state, city, sort)\n})"</script></p>
+    var reviews = $(&apos;input#reviews&apos;).val()
+    viz(state, city, sort, reviews)
+})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(state, city, sort, reviews){ \n    // define a template string\n    var tplString = '<g transform=\"translate(0 ${d.y})\"> \\\n                    <text y=\"20\">${d.label}</text> \\\n                    <rect x=\"280\"   \\\n                         width=\"${d.width}\" \\\n                         height=\"${d.height}\"  \\\n                         style=\"fill:${d.color};    \\\n                                stroke-width:3; \\\n                                stroke:rgb(0,0,0)\" />   \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    function computeX(d, i) {\n        return 0\n    }\n\n    // Width of bar is the average number of stars for the category\n    function computeWidth(d, i) {\n    \treturn d[1].avgStar * 95\n    }\n\n    function computeHeight(d, i) {\n    \treturn 20\n    }\n\n    function computeY(d, i) {\n    \treturn 20 * i\n    }\n\n    function computeColor(d, i) {\n        return 'blue'\n    }\n\n    function computeLabel(d, i) {\n    \treturn d[0] + ' (' + d[1].numRecords.toString() + ')'\n    }\n\n    // Map the items to categories and star counts for the specified state & city.\n    var itemsFiltered = _.chain(items)\n        .filter(function(d) {\n    \t   return (state == 'ALL' || d.state == state) \n            && (city == 'ALL' || d.city == city )\n        })\n        .map(function(d) {\n            return [d.categories, d.stars]\n        })\n        .value()\n     \n    // Map [categories, stars] to [category, average star rating, number of records]\n    var categories = \n    \t_.mapValues(\n    \t\t_.groupBy(\n                _.flatten(\n    \t\t\t\t_.map(itemsFiltered, function(d) {\n    \t\t\t\t\treturn _.map(d[0], function(n) {\n    \t\t\t\t\t\treturn [n, d[1]]\n    \t\t\t\t\t})\n    \t\t\t\t})\n    \t\t\t), function(d) { // group [category, star] pairs by category\n    \t\t\t\treturn d[0]\n    \t\t\t\t}\n    \t\t), function(d) {\n    \t\t\tvar records = _.unzip(d)[1]\n    \t\t\tvar numRecords = records.length\n    \t\t\tvar avgStar = _.sum(records) / numRecords\n    \t\t\treturn {'avgStar': avgStar, 'numRecords': numRecords}\n    \t\t\t}\n    \t\t)\n\n    // Only for debug\n    var count = _.size(categories)\n\n    // Convert to an array of pairs [category, item]\n    var pairs = _.pairs(categories)\n\n    // Filter out records with review counts less than specified\n    pairsFiltered = _.filter(pairs, function(d) {\n        return reviews == 'NONE' ? true : d[1].numRecords >= reviews\n        })\n\n    // Sort alphabetically or by star count\n    pairsSorted = _.sortBy(pairsFiltered, function(d) {\n    \treturn sort == 'Alphabet' ? d[0] : d[1].avgStar\n        })\n\n    var viz = _.map(pairsSorted, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i),\n                    width: computeWidth(d, i),\n                    height: computeHeight(d, i),\n                    color: computeColor(d, i),\n                    label: computeLabel(d, i)\n                }\n             })\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var state = $('input#state').val()\n    var city = $('input#city').val()\n    var sort = $('input#sort').val() \n    var reviews = $('input#reviews').val()\n    viz(state, city, sort, reviews)\n})"</script></p>
 <h1 id="author">Author</h1>
 <p>This UI is developed by</p>
 <ul>

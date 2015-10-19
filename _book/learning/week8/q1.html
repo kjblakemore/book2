@@ -68,7 +68,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="1.2.2" data-basepath="../.." data-revision="Mon Oct 19 2015 11:51:02 GMT-0600 (MDT)">
+    <div class="book" data-level="1.2.2" data-basepath="../.." data-revision="Mon Oct 19 2015 14:37:31 GMT-0600 (MDT)">
     
 
 <div class="book-summary">
@@ -462,16 +462,16 @@
                         <h1 id="individual-1-of-3">Individual 1 of 3</h1>
 <h2 id="is-there-a-relationship-between-review-count-and-star-count">Is there a relationship between Review Count and Star Count?</h2>
 <div style="border:1px grey solid; padding:5px;">
-    <div><h5>X</h5> (SC, IL, WI, NC, PA, AZ or ALL to select all States)
+    <div><h5>Enter State Abbreviation</h5> (SC, IL, WI, NC, PA, AZ or ALL)
         <input id="state" type="text" value="AZ">
     </div>
-    <div><h5>Y</h5> (City Name or ALL to select all Cities)
+    <div><h5>Enter City Name</h5> (City Name or ALL)
         <input id="city" type="text" value="Phoenix">
     </div>
-    <div><h5>Z</h5> (Category or ALL to select all Categories)
+    <div><h5>Enter Category</h5> (Category or ALL)
         <input id="category" type="text" value="Restaurants">
     </div> 
-    <div><h5>W</h5> (Maximum Review Count or NONE to select all Review Counts)
+    <div><h5>Enter Maximum Review Count</h5> (Number or NONE)
         <input id="reviews" type="text" value="100">
     </div>       
     <div style="margin:20px;">
@@ -479,6 +479,7 @@
     </div>
 </div>
 
+<p>The Chart, below shows the distribution of Review Counts (X axis), across Star Count (Y axis).  In general, the star counts range from 1-5.</p>
 <div class="myviz" style="width:100%; height:600px; border: 1px black solid; padding: 5px;">
 Data is not loaded yet
 </div>
@@ -491,17 +492,12 @@ $.get(&apos;http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_busi
 
         // convert text lines to json arrays and save them in `items`
         items = _.map(lines, JSON.parse)
-
-        console.log(&apos;number of items loaded:&apos;, items.length)
-
-        console.log(&apos;first item&apos;, items[0])
      })
      .error(function(e){
          console.error(e)
      })
 
 function viz(state, city, category, reviews){ 
-
     // define a template string
     var tplString = &apos;&lt;g&gt; \
     				&lt;circle cx=&quot;${d.x}&quot; \
@@ -516,28 +512,26 @@ function viz(state, city, category, reviews){
 
     // Filter all entries for the specified state, city and category
     var itemsFiltered = _.filter(items, function(d) {
-    	return (state == &apos;ALL&apos; || d.state == state) &amp;&amp; (city == &apos;ALL&apos; || d.city == city ) &amp;&amp; (category == &apos;ALL&apos; || _.includes(d.categories, category))
+    	return (state == &apos;ALL&apos; || d.state == state) &amp;&amp; 
+            (city == &apos;ALL&apos; || d.city == city ) &amp;&amp; 
+            (category == &apos;ALL&apos; || _.includes(d.categories, category))
     })
-
-    console.log(&apos;itemsFiltered&apos;, itemsFiltered)
 
     // Next, extract star rating and review count
     var reviewRatingPairs = _.map(itemsFiltered, function(d) {
     	return [d.review_count, d.stars]
     	})
 
-    console.log(&apos;reviewRatingPairs&apos;, reviewRatingPairs)
-
-    var maxReview = reviews == &apos;NONE&apos; ? _.max(_.unzip(reviewRatingPairs)[0]): reviews
-
-    console.log(&apos;max review count&apos;, maxReview)
+    var maxReview = 
+        reviews == &apos;NONE&apos; ? _.max(_.unzip(reviewRatingPairs)[0]): reviews
 
     // X coordinate is the scaled review count, with jitter
     function computeX(d, i) {
         return (d[0] + Math.random() -.5) * 600 / maxReview 
     }
 
-    // Y coordinate is the scaled star count, translated to an origin at lower left corner, with jitter
+    // Y coordinate is the scaled star count, translated to an origin at 
+    // lower left corner, with jitter
     function computeY(d, i) {
     	return 600 - 100 * (d[1] + Math.random() - .5)
     }
@@ -549,14 +543,10 @@ function viz(state, city, category, reviews){
                 }
              })
 
-    console.log(&apos;viz&apos;, viz)
-
     var result = _.map(viz, function(d){
              // invoke the compiled template function on each viz data
              return template({d: d})
          })
-
-    console.log(&apos;result&apos;, result)
 
     $(&apos;.myviz&apos;).html(&apos;&lt;svg width=&quot;100%&quot; height=&quot;100%&quot;&gt;&apos; + result + &apos;&lt;/svg&gt;&apos;)
 }
@@ -567,12 +557,7 @@ $(&apos;button#viz&apos;).click(function(){
     var category = $(&apos;input#category&apos;).val() 
     var reviews = $(&apos;input#reviews&apos;).val()
     viz(state, city, category, reviews)
-})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n\n        console.log('number of items loaded:', items.length)\n\n        console.log('first item', items[0])\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(state, city, category, reviews){ \n\n    // define a template string\n    var tplString = '<g> \\\n    \t\t\t\t<circle cx=\"${d.x}\" \\\n    \t\t\t\tcy=\"${d.y}\" \\\n    \t\t\t\tr=\"4\" \\\n    \t\t\t\tstroke=\"black\" \\\n    \t\t\t\tfill=\"red\" /> \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    // Filter all entries for the specified state, city and category\n    var itemsFiltered = _.filter(items, function(d) {\n    \treturn (state == 'ALL' || d.state == state) && (city == 'ALL' || d.city == city ) && (category == 'ALL' || _.includes(d.categories, category))\n    })\n\n    console.log('itemsFiltered', itemsFiltered)\n\n    // Next, extract star rating and review count\n    var reviewRatingPairs = _.map(itemsFiltered, function(d) {\n    \treturn [d.review_count, d.stars]\n    \t})\n\n    console.log('reviewRatingPairs', reviewRatingPairs)\n\n    var maxReview = reviews == 'NONE' ? _.max(_.unzip(reviewRatingPairs)[0]): reviews\n\n    console.log('max review count', maxReview)\n\n    // X coordinate is the scaled review count, with jitter\n    function computeX(d, i) {\n        return (d[0] + Math.random() -.5) * 600 / maxReview \n    }\n\n    // Y coordinate is the scaled star count, translated to an origin at lower left corner, with jitter\n    function computeY(d, i) {\n    \treturn 600 - 100 * (d[1] + Math.random() - .5)\n    }\n\n    var viz = _.map(reviewRatingPairs, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i)\n                }\n             })\n\n    console.log('viz', viz)\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n\n    console.log('result', result)\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var state = $('input#state').val()\n    var city = $('input#city').val()\n    var category = $('input#category').val() \n    var reviews = $('input#reviews').val()\n    viz(state, city, category, reviews)\n})"</script></p>
-<h1 id="author">Author</h1>
-<p>This UI is developed by</p>
-<ul>
-<li><a href="https://github.com/kjblakemore" target="_blank">Karen Blakemore</a></li>
-</ul>
+})</code></pre><script>var code ="items = 'not loaded yet'\n\n$.get('http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.5000.json.lines.txt')\n    .success(function(data){        \n        var lines = data.trim().split('\\n')\n\n        // convert text lines to json arrays and save them in `items`\n        items = _.map(lines, JSON.parse)\n     })\n     .error(function(e){\n         console.error(e)\n     })\n\nfunction viz(state, city, category, reviews){ \n    // define a template string\n    var tplString = '<g> \\\n    \t\t\t\t<circle cx=\"${d.x}\" \\\n    \t\t\t\tcy=\"${d.y}\" \\\n    \t\t\t\tr=\"4\" \\\n    \t\t\t\tstroke=\"black\" \\\n    \t\t\t\tfill=\"red\" /> \\\n                    </g>'\n\n    // compile the string to get a template function\n    var template = _.template(tplString)\n\n    // Filter all entries for the specified state, city and category\n    var itemsFiltered = _.filter(items, function(d) {\n    \treturn (state == 'ALL' || d.state == state) && \n            (city == 'ALL' || d.city == city ) && \n            (category == 'ALL' || _.includes(d.categories, category))\n    })\n\n    // Next, extract star rating and review count\n    var reviewRatingPairs = _.map(itemsFiltered, function(d) {\n    \treturn [d.review_count, d.stars]\n    \t})\n\n    var maxReview = \n        reviews == 'NONE' ? _.max(_.unzip(reviewRatingPairs)[0]): reviews\n\n    // X coordinate is the scaled review count, with jitter\n    function computeX(d, i) {\n        return (d[0] + Math.random() -.5) * 600 / maxReview \n    }\n\n    // Y coordinate is the scaled star count, translated to an origin at \n    // lower left corner, with jitter\n    function computeY(d, i) {\n    \treturn 600 - 100 * (d[1] + Math.random() - .5)\n    }\n\n    var viz = _.map(reviewRatingPairs, function(d, i){                \n                return {\n                    x: computeX(d, i),\n                    y: computeY(d, i)\n                }\n             })\n\n    var result = _.map(viz, function(d){\n             // invoke the compiled template function on each viz data\n             return template({d: d})\n         })\n\n    $('.myviz').html('<svg width=\"100%\" height=\"100%\">' + result + '</svg>')\n}\n\n$('button#viz').click(function(){    \n    var state = $('input#state').val()\n    var city = $('input#city').val()\n    var category = $('input#category').val() \n    var reviews = $('input#reviews').val()\n    viz(state, city, category, reviews)\n})"</script></p>
 
                     
                     </section>
