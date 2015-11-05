@@ -68,7 +68,7 @@
     <body>
         <!-- body:start -->
         
-    <div class="book" data-level="1.1.4" data-basepath="../.." data-revision="Mon Oct 19 2015 16:04:12 GMT-0600 (MDT)">
+    <div class="book" data-level="1.1.4" data-basepath="../.." data-revision="Thu Nov 05 2015 10:06:16 GMT-0700 (MST)">
     
 
 <div class="book-summary">
@@ -467,19 +467,19 @@
 <div class="myviz" style="width:100%; height:100px; border: 1px black solid;">
 </div>
 
-<p><pre><code>$(&apos;button#load-pokemon&apos;).click(function(){ 
-    $.get(&apos;/data/pokemon-small.json&apos;)
+<p><pre><code>$(&apos;button#load-pokemon&apos;).click(function(){
+    $.get(&apos;http://kjblakemore.github.io/book2/data/pokemon-small.json&apos;)
      .success(function(data){
          $(&apos;.myviz&apos;).html(&apos;number of records load:&apos; + data.length)
      })
 })
 
-$(&apos;button#load-fcq&apos;).click(function(){ 
-    $.get(&apos;/data/fcq.clean.json&apos;)
+$(&apos;button#load-fcq&apos;).click(function(){
+    $.get(&apos;http://kjblakemore.github.io/book2/data/fcq.clean.json&apos;)
      .success(function(data){
          $(&apos;.myviz&apos;).html(&apos;number of records load:&apos; + data.length)
      })
-})</code></pre><script>var code ="$('button#load-pokemon').click(function(){ \n    $.get('/data/pokemon-small.json')\n     .success(function(data){\n         $('.myviz').html('number of records load:' + data.length)\n     })\n})\n\n$('button#load-fcq').click(function(){ \n    $.get('/data/fcq.clean.json')\n     .success(function(data){\n         $('.myviz').html('number of records load:' + data.length)\n     })\n})"</script></p>
+})</code></pre><script>var code ="$('button#load-pokemon').click(function(){\n    $.get('http://kjblakemore.github.io/book2/data/pokemon-small.json')\n     .success(function(data){\n         $('.myviz').html('number of records load:' + data.length)\n     })\n})\n\n$('button#load-fcq').click(function(){\n    $.get('http://kjblakemore.github.io/book2/data/fcq.clean.json')\n     .success(function(data){\n         $('.myviz').html('number of records load:' + data.length)\n     })\n})"</script></p>
 
                     
                     </section>
