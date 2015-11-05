@@ -28,7 +28,7 @@ Data is not loaded yet
 // pokemonData is a global variable
 pokemonData = 'not loaded yet'
 
-$.get('/data/pokemon-small.json')
+$.get('http://kjblakemore.github.io/book2/data/pokemon-small.json')
  .success(function(data){
      console.log('data loaded', data)
      $('.myviz').html('number of records loaded:' + data.length)
@@ -307,7 +307,7 @@ function vizAsHorizontalSortedBars(){
         return d.Name
     }
 
-    var viz = 
+    var viz =
     	_.map(
     		_.sortBy(pokemonData, 'Attack'), function(d, i){
                 return {
@@ -368,7 +368,7 @@ function vizAsHorizontalSortedDescBars(){
         return d.Name
     }
 
-    var viz = 
+    var viz =
     	_.map(
     		_.sortBy(pokemonData, 'Attack').reverse(), function(d, i){
                 return {

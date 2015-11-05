@@ -48,7 +48,7 @@ Data is not loaded yet
 // pokemonData is a global variable
 pokemonData = 'not loaded yet'
 
-$.get('/data/pokemon-small.json')
+$.get('http://kjblakemore.github.io/book2/data/pokemon-small.json')
  .success(function(data){
      console.log('data loaded', data)
      $('.myviz').html('number of records loaded:' + data.length)
@@ -211,8 +211,8 @@ function vizAsSortedHorizontalBars(attributeName, sortDirection){
         return 'red'
     }
 
-    var sortedData = 
-    	sortDirection == 
+    var sortedData =
+    	sortDirection ==
     		'asc'? _.sortBy(pokemonData, attributeName) : _.sortBy(pokemonData, attributeName).reverse()
 
     console.log('sorted data', sortedData)
@@ -246,7 +246,7 @@ $('button#viz-horizontal-sorted-desc').click(function(){
     var attributeName = $('input#pokemon-sorted-attribute-name').val()
     var sortDirection = 'desc'
     vizAsSortedHorizontalBars(attributeName, sortDirection)
-}) 
+})
 
 // TODO: complete the code below
 // visualize three attributes, the first two attributes as side-by-side bar charts

@@ -10,15 +10,15 @@
 
 {% script %}
 
-$('button#load-pokemon').click(function(){ 
-    $.get('/data/pokemon-small.json')
+$('button#load-pokemon').click(function(){
+    $.get('http://kjblakemore.github.io/book2/data/pokemon-small.json')
      .success(function(data){
          $('.myviz').html('number of records load:' + data.length)
      })
 })
 
-$('button#load-fcq').click(function(){ 
-    $.get('/data/fcq.clean.json')
+$('button#load-fcq').click(function(){
+    $.get('http://kjblakemore.github.io/book2/data/fcq.clean.json')
      .success(function(data){
          $('.myviz').html('number of records load:' + data.length)
      })
